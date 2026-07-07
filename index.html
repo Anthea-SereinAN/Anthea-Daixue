@@ -1,15 +1,600 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-    <meta name="description" content="带学背诵管理系统——基于艾宾浩斯遗忘曲线的背诵管理工具，帮助老师为多位学生按科目管理背诵内容，自动计算复习日期并追踪完成情况。" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>" />
-    <title>背诵管理</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="带学背诵管理系统——基于艾宾浩斯遗忘曲线的智能背诵管理工具，纯前端可直接体验">
+  <title>带学背诵管理系统 | Daixue Recitation Manager</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
-  <script defer src="./assets/index-Dl10sm4u.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+    :root {
+      --bg-body: #0d1117;
+      --bg-section: rgba(15,19,26,0.55);
+      --bg-card: #1c2128;
+      --border-card: #3c444d;
+      --accent: #6e40c9;
+      --accent-glow: rgba(110,64,201,0.35);
+      --accent-soft: rgba(110,64,201,0.12);
+      --text-primary: #e6edf3;
+      --text-secondary: #aeb7c1;
+      --text-muted: #8b949e;
+      --gradient-divider: linear-gradient(90deg, transparent, rgba(177,76,217,0.45), transparent);
+      --tag-text: #e9e0ff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== Container ===== */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      position: relative;
+      padding: 3.5rem 0 2.5rem;
+      border-bottom: 1px solid var(--gradient-divider);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--accent-soft);
+      border: 1px solid rgba(110,64,201,0.3);
+      border-radius: 20px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      color: var(--tag-text);
+      margin-bottom: 1rem;
+    }
+
+    .hero-badge .emoji { font-size: 0.9rem; }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.2rem;
+      font-weight: 400;
+    }
+
+    .hero-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    .hero-cta {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.7rem 1.6rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: #7c4ddb;
+      transform: translateY(-1px);
+      box-shadow: 0 0 28px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 0.7rem 1.6rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: 1px solid var(--border-card);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    /* ===== Section ===== */
+    .section {
+      position: relative;
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--gradient-divider);
+    }
+
+    .section-deco {
+      position: absolute;
+      font-size: 11px;
+      color: var(--text-muted);
+      opacity: 0.6;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .section-deco.left { left: -5.5rem; top: 2.7rem; }
+    .section-deco.right { right: -5.5rem; top: 2.7rem; }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ===== Feature Grid ===== */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 1.2rem;
+      transition: all 0.2s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(110,64,201,0.5);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ===== Algorithm Visual ===== */
+    .algo-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .algo-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.8rem;
+    }
+
+    .algo-timeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0.5rem 0;
+      overflow-x: auto;
+    }
+
+    .algo-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 44px;
+      position: relative;
+    }
+
+    .algo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent-glow);
+      margin-bottom: 0.3rem;
+    }
+
+    .algo-dot.today {
+      background: #f0b429;
+      box-shadow: 0 0 8px rgba(240,180,41,0.4);
+      width: 14px;
+      height: 14px;
+    }
+
+    .algo-day {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .algo-line {
+      flex: 1;
+      min-width: 20px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), rgba(110,64,201,0.3));
+    }
+
+    .algo-note {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 0.8rem;
+      padding-top: 0.8rem;
+      border-top: 1px dashed var(--border-card);
+      line-height: 1.6;
+    }
+
+    /* ===== Tech Stack ===== */
+    .tech-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tech-tag {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+    }
+
+    .tech-tag:hover {
+      border-color: var(--accent);
+      color: var(--tag-text);
+    }
+
+    .tech-tag .tag-emoji {
+      font-size: 0.85rem;
+      margin-right: 0.3rem;
+    }
+
+    /* ===== Data Model ===== */
+    .model-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+    }
+
+    .model-node {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .model-node:hover {
+      border-color: var(--accent);
+      color: var(--tag-text);
+    }
+
+    .model-arrow {
+      color: var(--accent);
+      font-size: 1.2rem;
+    }
+
+    /* ===== Highlights ===== */
+    .highlight-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .highlight-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.6rem 0;
+    }
+
+    .highlight-bullet {
+      color: var(--accent);
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .highlight-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .highlight-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* ===== Footer CTA ===== */
+    .footer-cta {
+      padding: 3rem 0 2rem;
+      text-align: center;
+    }
+
+    .footer-cta-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-cta-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-cta .btn-primary {
+      font-size: 1.1rem;
+      padding: 0.85rem 2.2rem;
+    }
+
+    .footer-meta {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .hero-title { font-size: 1.7rem; }
+      .hero-subtitle { font-size: 1rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .section-deco { display: none; }
+      .algo-timeline { gap: 0; }
+      .algo-node { min-width: 36px; }
+      .algo-line { min-width: 12px; }
+    }
+
+    @media (min-width: 1100px) {
+      .section-deco.left { left: -7rem; }
+      .section-deco.right { right: -7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="emoji">📋</span>
+        <span>纯前端 · 免登录 · 即用</span>
+      </div>
+      <h1 class="hero-title">带学背诵管理系统</h1>
+      <p class="hero-subtitle">Daixue Recitation Manager</p>
+      <p class="hero-desc">
+        基于艾宾浩斯遗忘曲线，为老师和学生量身打造的背诵进度管理工具。多学生、多科目、自动计算复习节点——所有数据存储在本地浏览器，无需注册即可开始使用。
+      </p>
+      <div class="hero-cta">
+        <a href="./app/" class="btn-primary">
+          🚀 立即体验
+        </a>
+        <a href="https://github.com/Anthea-SereinAN/Anthea-Daixue" class="btn-secondary" target="_blank">
+          📦 查看源码
+        </a>
+      </div>
+    </section>
+
+    <!-- ===== Core Features ===== -->
+    <section class="section">
+      <span class="section-deco left">CORE</span>
+      <h2 class="section-title">✦ 核心功能</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <div class="feature-name">艾宾浩斯自动排期</div>
+          <div class="feature-desc">录入背诵条目后，系统自动按遗忘曲线计算复习日期：当天 → 1 → 2 → 4 → 7 → 15 → 30 → 45 → 60 → 75 → 90 天，共 11 个复习节点</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-name">7 种状态追踪</div>
+          <div class="feature-desc">每个复习格子有独立状态：按时完成 / 提前完成 / 逾期补完 / 今日待复习 / 逾期未复习 / 未来待复习 / 已跳过，一目了然</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <div class="feature-name">多学生 × 多科目</div>
+          <div class="feature-desc">支持为多位学生分别建立科目，独立管理背诵进度。适合带学老师、班主任、考研辅导等场景</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <div class="feature-name">日计划 + 周计划</div>
+          <div class="feature-desc">日计划按上午/下午/晚上三时段安排，周计划按专业课/英语/政治三科分类。支持结转、复制、批量导入</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📥</div>
+          <div class="feature-name">导入 / 导出</div>
+          <div class="feature-desc">数据可导出为 JSON（备份恢复）和 Markdown（可读打印）。导入前自动校验、预览数据量、备份当前数据</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌙</div>
+          <div class="feature-name">暗色模式</div>
+          <div class="feature-desc">内置暗色/亮色切换，背诵表格在两种模式下均有清晰可读的色彩编码</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Algorithm Visual ===== -->
+    <section class="section">
+      <span class="section-deco right">ALGO</span>
+      <h2 class="section-title">✦ 遗忘曲线复习节奏</h2>
+      <div class="algo-section">
+        <div class="algo-title">11 个复习节点 · 自动排期</div>
+        <div class="algo-timeline">
+          <div class="algo-node">
+            <div class="algo-dot today"></div>
+            <div class="algo-day">0</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">1</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">2</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">4</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">7</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">15</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">30</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">45</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">60</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">75</div>
+          </div>
+          <div class="algo-line"></div>
+          <div class="algo-node">
+            <div class="algo-dot"></div>
+            <div class="algo-day">90</div>
+          </div>
+        </div>
+        <div class="algo-note">
+          📐 算法核心：每个背诵条目录入日期后，系统自动在上述 11 个天数节点生成复习格子。复习越早完成，状态标记越优（绿色=按时、蓝色=提前）。逾期未复习的格子会标红提醒，帮助师生及时干预。
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Data Model ===== -->
+    <section class="section">
+      <span class="section-deco left">DATA</span>
+      <h2 class="section-title">✦ 数据层级</h2>
+      <div class="model-flow">
+        <div class="model-node">👩‍🎓 学生</div>
+        <div class="model-arrow">→</div>
+        <div class="model-node">📚 科目</div>
+        <div class="model-arrow">→</div>
+        <div class="model-node">📝 背诵条目</div>
+        <div class="model-arrow">→</div>
+        <div class="model-node">📊 复习记录</div>
+      </div>
+      <ul class="highlight-list" style="margin-top: 1rem;">
+        <li class="highlight-item">
+          <span class="highlight-bullet">◆</span>
+          <span class="highlight-text"><strong>三级嵌套</strong>：每个学生下可建多个科目，每个科目下管理多条背诵内容，结构清晰不混乱</span>
+        </li>
+        <li class="highlight-item">
+          <span class="highlight-bullet">◆</span>
+          <span class="highlight-text"><strong>纯前端存储</strong>：全部数据保存在浏览器 localStorage，无需服务器、无需注册、隐私安全</span>
+        </li>
+        <li class="highlight-item">
+          <span class="highlight-bullet">◆</span>
+          <span class="highlight-text"><strong>数据不丢失</strong>：关闭页面再打开，进度完整保留；支持 JSON 导出备份到本地</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===== Tech Stack ===== -->
+    <section class="section">
+      <h2 class="section-title">✦ 技术栈</h2>
+      <div class="tech-list">
+        <div class="tech-tag"><span class="tag-emoji">⚛️</span> React 19</div>
+        <div class="tech-tag"><span class="tag-emoji">🔷</span> TypeScript</div>
+        <div class="tech-tag"><span class="tag-emoji">⚡</span> Vite 8</div>
+        <div class="tech-tag"><span class="tag-emoji">🎨</span> Tailwind CSS 3.4</div>
+        <div class="tech-tag"><span class="tag-emoji">📅</span> dayjs</div>
+        <div class="tech-tag"><span class="tag-emoji">💾</span> localStorage</div>
+        <div class="tech-tag"><span class="tag-emoji">🧮</span> 自研遗忘曲线算法</div>
+        <div class="tech-tag"><span class="tag-emoji">🧭</span> 轻量状态路由</div>
+      </div>
+    </section>
+
+    <!-- ===== Footer CTA ===== -->
+    <section class="footer-cta">
+      <h2 class="footer-cta-title">开始管理你的背诵进度</h2>
+      <p class="footer-cta-desc">无需注册 · 无需下载 · 打开即用 · 数据自动保存</p>
+      <a href="./app/" class="btn-primary">🚀 立即体验</a>
+      <p class="footer-meta">
+        Made by Anthea · 纯前端开源项目 · 数据仅存本地浏览器
+      </p>
+    </section>
+
+  </div>
+</body>
 </html>
