@@ -375,13 +375,49 @@
 
     /* ===== Responsive ===== */
     @media (max-width: 768px) {
+      .container { padding: 1.5rem 1rem; }
+      .hero { padding: 2rem 0 1.5rem; }
       .hero-title { font-size: 1.7rem; }
       .hero-subtitle { font-size: 1rem; }
-      .feature-grid { grid-template-columns: 1fr; }
+      .hero-desc { font-size: 0.9rem; line-height: 1.65; }
+      .hero-cta { margin-top: 1.5rem; }
+      .btn-primary { font-size: 1rem; padding: 0.75rem 2rem; }
+      .section { padding: 1.8rem 0; }
+      .section-title { font-size: 1.25rem; }
+      .feature-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+      .feature-card { padding: 1.2rem; }
+      .feature-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+      .feature-name { font-size: 1rem; }
+      .feature-desc { font-size: 0.85rem; }
       .section-deco { display: none; }
       .algo-timeline { gap: 0; }
-      .algo-node { min-width: 36px; }
+      .algo-node { min-width: 36px; padding: 0.35rem 0.5rem; }
+      .algo-node .day { font-size: 0.65rem; }
+      .algo-node .label { font-size: 0.55rem; }
       .algo-line { min-width: 12px; }
+      .data-levels { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+      .data-level { padding: 0.8rem; }
+      .data-level .level-icon { font-size: 1.5rem; }
+      .data-level .level-name { font-size: 0.85rem; }
+      .data-level .level-detail { font-size: 0.7rem; }
+      .tech-stack { gap: 0.4rem; }
+      .tech-tag { font-size: 0.75rem; padding: 0.25rem 0.6rem; }
+      .footer-cta { padding: 1.5rem; }
+      .footer-cta-title { font-size: 1.2rem; }
+      .footer-cta-desc { font-size: 0.85rem; }
+      .footer-cta .btn-primary { font-size: 1rem; padding: 0.75rem 2rem; }
+      .mini-cta { padding: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 1.45rem; }
+      .hero-badge { font-size: 0.75rem; }
+      .data-levels { grid-template-columns: 1fr; }
+      .algo-node { min-width: 28px; padding: 0.25rem 0.35rem; }
+      .algo-node .day { font-size: 0.6rem; }
+      .algo-node .label { font-size: 0.5rem; }
+      .algo-line { min-width: 8px; }
+      .algo-timeline { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
     }
 
     @media (min-width: 1100px) {
